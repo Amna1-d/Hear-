@@ -1,0 +1,698 @@
+<!DOCTYPE html>
+<html lang="ar" dir="rtl">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
+    <meta name="theme-color" content="#0f766e">
+    <meta name="apple-mobile-web-app-capable" content="yes">
+    <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
+    <title>مساحتي الآمنة 🦋</title>
+    <link rel="manifest" href="manifest.json">
+    <link rel="apple-touch-icon" href="https://cdn-icons-png.flaticon.com/512/628/628283.png">
+    
+    <!-- استدعاء خطوط عربية فاخرة (خط الرقعة للعنوان وخط كايرو للنصوص) -->
+    <link href="https://fonts.googleapis.com/css2?family=Aref+Ruqaa:wght@700&family=Cairo:wght@400;600;700;900&display=swap" rel="stylesheet">
+    <script src="https://cdn.jsdelivr.net/npm/canvas-confetti@1.5.1/dist/confetti.browser.min.js"></script>
+    
+    <style>
+        * {
+            box-sizing: border-box;
+            margin: 0;
+            padding: 0;
+            font-family: 'Cairo', sans-serif;
+            -webkit-tap-highlight-color: transparent;
+        }
+
+        body {
+            /* خلفية صورة طبيعية هادئة مع طبقة لونية مريحة للعين */
+            background: linear-gradient(180deg, rgba(15, 118, 110, 0.75) 0%, rgba(17, 94, 89, 0.85) 50%, rgba(19, 78, 74, 0.95) 100%),
+                        url('https://images.unsplash.com/photo-1518531933037-91b2f5f229cc?auto=format&fit=crop&w=1000&q=80') center/cover fixed;
+            color: #ffffff;
+            min-height: 100vh;
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            padding: 25px 15px 50px;
+        }
+
+        .app-container {
+            max-width: 450px;
+            width: 100%;
+            display: flex;
+            flex-direction: column;
+            gap: 18px;
+        }
+
+        /* تزيين العنوان الرئيسي */
+        .header {
+            text-align: center;
+            padding: 10px 0 5px;
+            position: relative;
+        }
+
+        .title-wrapper {
+            display: inline-flex;
+            align-items: center;
+            gap: 10px;
+            background: rgba(255, 255, 255, 0.12);
+            backdrop-filter: blur(10px);
+            padding: 8px 24px;
+            border-radius: 50px;
+            border: 1px solid rgba(255, 255, 255, 0.3);
+            box-shadow: 0 8px 20px rgba(0, 0, 0, 0.15);
+        }
+
+        .header h1 {
+            font-family: 'Aref Ruqaa', serif;
+            font-size: 32px;
+            background: linear-gradient(to right, #fef08a, #ffffff, #a7f3d0);
+            -webkit-background-clip: text;
+            -webkit-text-fill-color: transparent;
+            text-shadow: 0 2px 10px rgba(255, 255, 255, 0.2);
+        }
+
+        .butterfly {
+            font-size: 24px;
+            animation: flutter 2.5s infinite ease-in-out;
+        }
+
+        @keyframes flutter {
+            0%, 100% { transform: translateY(0) rotate(0deg); }
+            50% { transform: translateY(-6px) rotate(12deg); }
+        }
+
+        .header p {
+            font-size: 13px;
+            color: #ccfbf1;
+            margin-top: 8px;
+            font-weight: 600;
+        }
+
+        /* البطاقات الزجاجية الفاخرة */
+        .glass-card {
+            background: rgba(255, 255, 255, 0.92);
+            backdrop-filter: blur(16px);
+            border-radius: 26px;
+            padding: 22px 20px;
+            color: #134e4a;
+            box-shadow: 0 15px 35px rgba(0, 0, 0, 0.2);
+            border: 1px solid rgba(255, 255, 255, 0.8);
+        }
+
+        /* العداد الرئيسي */
+        .counter-card {
+            text-align: center;
+            position: relative;
+            overflow: hidden;
+        }
+
+        .plant-icon {
+            font-size: 56px;
+            margin-bottom: 5px;
+            display: inline-block;
+            filter: drop-shadow(0 5px 10px rgba(13, 148, 136, 0.2));
+            animation: gentleSway 3s ease-in-out infinite;
+        }
+
+        @keyframes gentleSway {
+            0%, 100% { transform: rotate(-4deg) scale(1); }
+            50% { transform: rotate(4deg) scale(1.05); }
+        }
+
+        .days-big {
+            font-size: 58px;
+            font-weight: 900;
+            background: linear-gradient(135deg, #0d9488, #0284c7);
+            -webkit-background-clip: text;
+            -webkit-text-fill-color: transparent;
+            line-height: 1;
+        }
+
+        .days-label {
+            font-size: 17px;
+            font-weight: 800;
+            color: #0f766e;
+            margin-bottom: 15px;
+        }
+
+        .sub-timer {
+            display: flex;
+            justify-content: center;
+            gap: 10px;
+            background: #f0fdfa;
+            padding: 12px;
+            border-radius: 18px;
+            border: 1px solid #99f6e4;
+        }
+
+        .time-box {
+            flex: 1;
+            background: white;
+            padding: 6px;
+            border-radius: 12px;
+            box-shadow: 0 2px 6px rgba(13, 148, 136, 0.06);
+        }
+
+        .time-val {
+            font-size: 20px;
+            font-weight: 900;
+            color: #0f766e;
+        }
+
+        .time-unit {
+            font-size: 11px;
+            font-weight: 700;
+            color: #0d9488;
+        }
+
+        /* شريط التقدم للهدف القادم */
+        .progress-section {
+            margin-top: 15px;
+            text-align: right;
+        }
+
+        .progress-text {
+            font-size: 12px;
+            font-weight: 700;
+            color: #0f766e;
+            display: flex;
+            justify-content: space-between;
+            margin-bottom: 6px;
+        }
+
+        .progress-bar-bg {
+            width: 100%;
+            height: 10px;
+            background: #ccfbf1;
+            border-radius: 10px;
+            overflow: hidden;
+        }
+
+        .progress-bar-fill {
+            height: 100%;
+            background: linear-gradient(90deg, #0d9488, #f59e0b);
+            width: 0%;
+            border-radius: 10px;
+            transition: width 0.5s ease;
+        }
+
+        /* أزرار التفاعل السريعة */
+        .action-grid {
+            display: grid;
+            grid-template-columns: 1fr 1fr;
+            gap: 12px;
+        }
+
+        .action-btn {
+            border: none;
+            padding: 15px 12px;
+            border-radius: 20px;
+            font-size: 14px;
+            font-weight: 800;
+            color: white;
+            cursor: pointer;
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            gap: 6px;
+            box-shadow: 0 8px 20px rgba(0, 0, 0, 0.15);
+            transition: transform 0.2s;
+        }
+
+        .action-btn:active {
+            transform: scale(0.96);
+        }
+
+        .btn-sos {
+            background: linear-gradient(135deg, #f59e0b, #ea580c);
+        }
+
+        .btn-bubbles {
+            background: linear-gradient(135deg, #06b6d4, #2563eb);
+        }
+
+        .btn-icon {
+            font-size: 26px;
+        }
+
+        /* بطاقة التحفيز */
+        .quote-card {
+            background: rgba(255, 255, 255, 0.15);
+            backdrop-filter: blur(12px);
+            border: 1px solid rgba(255, 255, 255, 0.3);
+            color: white;
+            border-radius: 22px;
+            padding: 18px;
+            text-align: center;
+            cursor: pointer;
+        }
+
+        .quote-text {
+            font-size: 15px;
+            font-weight: 700;
+            line-height: 1.6;
+        }
+
+        /* تسجيل المزاج اليومي */
+        .mood-section {
+            text-align: center;
+        }
+
+        .section-title {
+            font-size: 15px;
+            font-weight: 800;
+            color: #0f766e;
+            margin-bottom: 12px;
+        }
+
+        .moods {
+            display: flex;
+            justify-content: space-around;
+            margin-bottom: 10px;
+        }
+
+        .mood-btn {
+            background: #f0fdfa;
+            border: 2px solid transparent;
+            border-radius: 16px;
+            padding: 8px 12px;
+            font-size: 24px;
+            cursor: pointer;
+            transition: all 0.2s;
+        }
+
+        .mood-btn.selected {
+            border-color: #0d9488;
+            background: #ccfbf1;
+            transform: scale(1.1);
+        }
+
+        .mood-msg {
+            font-size: 12px;
+            color: #0d9488;
+            font-weight: 700;
+            min-height: 18px;
+        }
+
+        /* الأوسمة */
+        .badges-grid {
+            display: grid;
+            grid-template-columns: repeat(4, 1fr);
+            gap: 8px;
+        }
+
+        .badge {
+            background: #f1f5f9;
+            border-radius: 16px;
+            padding: 10px 4px;
+            text-align: center;
+            opacity: 0.4;
+            filter: grayscale(100%);
+            transition: all 0.4s ease;
+        }
+
+        .badge.unlocked {
+            background: linear-gradient(135deg, #fef3c7, #fde68a);
+            border: 1px solid #f59e0b;
+            opacity: 1;
+            filter: grayscale(0%);
+            transform: scale(1.03);
+            box-shadow: 0 4px 10px rgba(245, 158, 11, 0.2);
+        }
+
+        .badge-icon { font-size: 24px; }
+        .badge-name { font-size: 10px; font-weight: 800; margin-top: 4px; color: #334155; }
+
+        /* أزرار التحكم السفلية */
+        .controls {
+            display: flex;
+            gap: 10px;
+        }
+
+        .btn-bottom {
+            flex: 1;
+            background: rgba(255, 255, 255, 0.2);
+            backdrop-filter: blur(8px);
+            border: 1px solid rgba(255, 255, 255, 0.35);
+            color: white;
+            padding: 12px;
+            border-radius: 16px;
+            font-size: 13px;
+            font-weight: 700;
+            cursor: pointer;
+        }
+
+        /* النوافذ المنبثقة (Modals) */
+        .modal {
+            display: none;
+            position: fixed;
+            top: 0; left: 0; right: 0; bottom: 0;
+            background: rgba(15, 23, 42, 0.8);
+            backdrop-filter: blur(8px);
+            z-index: 100;
+            justify-content: center;
+            align-items: center;
+            padding: 20px;
+        }
+
+        .modal-content {
+            background: white;
+            border-radius: 28px;
+            padding: 25px;
+            max-width: 400px;
+            width: 100%;
+            text-align: center;
+            color: #134e4a;
+            animation: popIn 0.3s ease;
+        }
+
+        @keyframes popIn {
+            from { transform: scale(0.9); opacity: 0; }
+            to { transform: scale(1); opacity: 1; }
+        }
+
+        .breathing-circle {
+            width: 110px;
+            height: 110px;
+            background: #ccfbf1;
+            border: 4px solid #0d9488;
+            border-radius: 50%;
+            margin: 20px auto;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-weight: 800;
+            color: #0f766e;
+            animation: breathe 8s infinite ease-in-out;
+        }
+
+        @keyframes breathe {
+            0%, 100% { transform: scale(0.85); background: #ccfbf1; }
+            50% { transform: scale(1.25); background: #5eead4; }
+        }
+
+        /* شبكة الفقاعات التفاعلية */
+        .bubbles-grid {
+            display: grid;
+            grid-template-columns: repeat(5, 1fr);
+            gap: 10px;
+            margin: 20px 0;
+            justify-items: center;
+        }
+
+        .bubble {
+            width: 48px;
+            height: 48px;
+            border-radius: 50%;
+            background: radial-gradient(circle at 30% 30%, #67e8f9, #0284c7);
+            box-shadow: inset -3px -3px 8px rgba(0,0,0,0.2), 0 4px 8px rgba(2, 132, 199, 0.3);
+            cursor: pointer;
+            transition: transform 0.15s, opacity 0.2s;
+        }
+
+        .bubble.popped {
+            transform: scale(0.75);
+            background: #e2e8f0;
+            box-shadow: inset 2px 2px 5px rgba(0,0,0,0.15);
+        }
+
+        .close-btn {
+            background: linear-gradient(135deg, #0d9488, #0f766e);
+            color: white;
+            border: none;
+            padding: 13px 24px;
+            border-radius: 16px;
+            font-weight: 800;
+            width: 100%;
+            cursor: pointer;
+            font-size: 15px;
+        }
+    </style>
+</head>
+<body>
+
+    <div class="app-container">
+        <!-- العنوان المزخرف -->
+        <div class="header">
+            <div class="title-wrapper">
+                <span class="butterfly">🦋</span>
+                <h1>مساحتي الآمنة</h1>
+                <span class="butterfly">🌸</span>
+            </div>
+            <p>حديقتكِ الخاصة للهدوء والقوة والتعافي ✨</p>
+        </div>
+
+        <!-- بطاقة العداد الرئيسية -->
+        <div class="glass-card counter-card">
+            <div class="plant-icon" id="plantStage">🌱</div>
+            <div class="days-big" id="daysCount">0</div>
+            <div class="days-label">يوم من القوة والانتصار</div>
+
+            <div class="sub-timer">
+                <div class="time-box">
+                    <div class="time-val" id="hoursCount">0</div>
+                    <div class="time-unit">ساعة</div>
+                </div>
+                <div class="time-box">
+                    <div class="time-val" id="minutesCount">0</div>
+                    <div class="time-unit">دقيقة</div>
+                </div>
+                <div class="time-box">
+                    <div class="time-val" id="secondsCount">0</div>
+                    <div class="time-unit">ثانية</div>
+                </div>
+            </div>
+
+            <!-- شريط التقدم نحو الوسام القادم -->
+            <div class="progress-section">
+                <div class="progress-text">
+                    <span id="nextGoalLabel">الهدف القادم: أول 24 ساعة</span>
+                    <span id="progressPercent">0%</span>
+                </div>
+                <div class="progress-bar-bg">
+                    <div class="progress-bar-fill" id="progressBar"></div>
+                </div>
+            </div>
+        </div>
+
+        <!-- أزرار المساعدة السريعة -->
+        <div class="action-grid">
+            <button class="action-btn btn-sos" onclick="openSOS()">
+                <span class="btn-icon">✋</span>
+                <span>أشعر برغبة الآن!</span>
+            </button>
+            <button class="action-btn btn-bubbles" onclick="openBubbles()">
+                <span class="btn-icon">🫧</span>
+                <span>تشتيت يديّ بالفقاعات</span>
+            </button>
+        </div>
+
+        <!-- رسالة تحفيزية -->
+        <div class="quote-card" onclick="changeQuote()">
+            <p class="quote-text" id="dailyQuote">"أنتِ أقوى من هذه الرغبة العابرة، خذي نفساً عميقاً وتذكري كم أنجزتِ."</p>
+            <small style="opacity: 0.85; display: block; margin-top: 6px; font-size: 11px;">✨ اضغطي لتجديد الرسالة ✨</small>
+        </div>
+
+        <!-- تسجيل الحالة المزاجية -->
+        <div class="glass-card mood-section">
+            <div class="section-title">كيف تشعرين في هذه اللحظة؟ 🌷</div>
+            <div class="moods">
+                <button class="mood-btn" onclick="selectMood(this, 'فخورة بكِ! استمري بهذا الإشراق الجميل 🌟')">😊</button>
+                <button class="mood-btn" onclick="selectMood(this, 'الهدوء نعمة، استمتعي بسلامكِ الداخلي 🍃')">😌</button>
+                <button class="mood-btn" onclick="selectMood(this, 'لا بأس بالتوتر، جربي لعبة الفقاعات أو التنفس العميق 🌊')">😰</button>
+                <button class="mood-btn" onclick="selectMood(this, 'أنتِ شجاعة جداً، وهذه المشاعر ستمر بسلام 💖')">🥺</button>
+            </div>
+            <div class="mood-msg" id="moodResponse">اختاري شعوركِ لأرسل لكِ رسالة مناسبة</div>
+        </div>
+
+        <!-- الأوسمة -->
+        <div class="glass-card">
+            <div class="section-title" style="text-align: center;">🏆 حديقة إنجازاتي وأوسمتي</div>
+            <div class="badges-grid">
+                <div class="badge" id="badge1">
+                    <div class="badge-icon">🌟</div>
+                    <div class="badge-name">24 ساعة</div>
+                </div>
+                <div class="badge" id="badge3">
+                    <div class="badge-icon">🌿</div>
+                    <div class="badge-name">3 أيام</div>
+                </div>
+                <div class="badge" id="badge7">
+                    <div class="badge-icon">🦋</div>
+                    <div class="badge-name">أسبوع</div>
+                </div>
+                <div class="badge" id="badge30">
+                    <div class="badge-icon">👑</div>
+                    <div class="badge-name">شهر كامل</div>
+                </div>
+            </div>
+        </div>
+
+        <!-- أزرار التحكم -->
+        <div class="controls">
+            <button class="btn-bottom" onclick="celebrate()">🎉 احتفلي بي</button>
+            <button class="btn-bottom" onclick="resetCounter()">🔄 بداية جديدة</button>
+        </div>
+    </div>
+
+    <!-- نافذة الطوارئ (التنفس) -->
+    <div class="modal" id="sosModal">
+        <div class="modal-content">
+            <h3 style="color: #0f766e; margin-bottom: 5px;">اهدئي.. ستمر خلال دقائق 🌊</h3>
+            <p style="font-size: 13px; color: #64748b;">تنفسي ببطء مع الدائرة</p>
+            <div class="breathing-circle">تنفسي</div>
+            <div style="background: #fffbeb; border: 1px solid #fde68a; padding: 12px; border-radius: 14px; font-size: 13px; color: #92400e; margin-bottom: 18px;" id="actionTip"></div>
+            <button class="close-btn" onclick="closeSOS()">تجاوزت الرغبة، أنا بخير 💪</button>
+        </div>
+    </div>
+
+    <!-- نافذة لعبة الفقاعات لتشتيت اليدين -->
+    <div class="modal" id="bubblesModal">
+        <div class="modal-content">
+            <h3 style="color: #0284c7; margin-bottom: 5px;">فرقعي الفقاعات بأصابعكِ 🫧</h3>
+            <p style="font-size: 13px; color: #64748b;">اشغلي يديكِ هنا حتى تهدأ الرغبة تماماً</p>
+            <div class="bubbles-grid" id="bubblesContainer"></div>
+            <button class="btn-bottom" style="background: #e0f2fe; color: #0284c7; width: 100%; margin-bottom: 10px;" onclick="createBubbles()">🔄 تجديد الفقاعات</button>
+            <button class="close-btn" onclick="closeBubbles()">أشعر بالهدوء الآن ✨</button>
+        </div>
+    </div>
+
+    <script>
+        const quotes = [
+            "أنتِ أقوى من هذه الرغبة العابرة، خذي نفساً عميقاً وتذكري كم أنجزتِ.",
+            "شعركِ يستحق الحب والعناية، وأنتِ تستحقين الراحة والسلام النفسي 💖",
+            "الرغبة تشبه الموجة؛ ترتفع قليلاً ثم تتلاشى تماماً إذا لم تستسلمي لها 🌊",
+            "كل ساعة تمر دون نتف هي خطوة جديدة نحو التعافي والثقة بالنفس ✨",
+            "كوني فخورة بنفسكِ، مجرد محاولتكِ وصنعكِ لهذا التطبيق دليل على قوتكِ 🌷",
+            "يداكِ خلقتا للإبداع والجمال، اتركيهما ترتاحان الآن 🤍"
+        ];
+
+        const tips = [
+            "💡 <strong>اشغلي يديكِ فوراً:</strong> ضعي كريماً مرطباً أو زيتاً على يديكِ الآن لتصبح ناعمة ويصعب الإمساك بالشعر!",
+            "💡 <strong>غيري مكانكِ:</strong> قومي من مكانكِ فوراً، اشربي كوب ماء بارد، أو اذهبي للجلوس مع العائلة.",
+            "💡 <strong>قاعدة الـ 5 دقائق:</strong> قولي لنفسكِ (سأنتظر 5 دقائق فقط قبل أن أفعل شيئاً)، غالباً ستختفي الرغبة تماماً!"
+        ];
+
+        let startTime = localStorage.getItem('recoveryStartTime');
+        if (!startTime) {
+            startTime = Date.now();
+            localStorage.setItem('recoveryStartTime', startTime);
+        } else {
+            startTime = parseInt(startTime);
+        }
+
+        function updateTimer() {
+            const now = Date.now();
+            const diff = now - startTime;
+            const totalHours = diff / (1000 * 60 * 60);
+
+            const days = Math.floor(diff / (1000 * 60 * 60 * 24));
+            const hours = Math.floor((diff / (1000 * 60 * 60)) % 24);
+            const minutes = Math.floor((diff / 1000 / 60) % 60);
+            const seconds = Math.floor((diff / 1000) % 60);
+
+            document.getElementById('daysCount').innerText = days;
+            document.getElementById('hoursCount').innerText = hours;
+            document.getElementById('minutesCount').innerText = minutes;
+            document.getElementById('secondsCount').innerText = seconds;
+
+            // تحديث شريط التقدم نحو الهدف القادم
+            let targetHours = 24;
+            let goalName = "أول 24 ساعة 🌟";
+            if (totalHours >= 24 && totalHours < 72) { targetHours = 72; goalName = "3 أيام قوة 🌿"; }
+            else if (totalHours >= 72 && totalHours < 168) { targetHours = 168; goalName = "أسبوع كامل 🦋"; }
+            else if (totalHours >= 168 && totalHours < 720) { targetHours = 720; goalName = "شهر كامل 👑"; }
+            else if (totalHours >= 720) { targetHours = totalHours; goalName = "بطلة مستمرة 👑"; }
+
+            const percent = Math.min(100, Math.floor((totalHours / targetHours) * 100));
+            document.getElementById('nextGoalLabel').innerText = `الهدف القادم: ${goalName}`;
+            document.getElementById('progressPercent').innerText = `${percent}%`;
+            document.getElementById('progressBar').style.width = `${percent}%`;
+
+            // تحديث النبتة والأوسمة
+            const plant = document.getElementById('plantStage');
+            if (days >= 30) plant.innerText = '🌳';
+            else if (days >= 7) plant.innerText = '🌷';
+            else if (days >= 3) plant.innerText = '🌿';
+            else plant.innerText = '🌱';
+
+            if (days >= 1) document.getElementById('badge1').classList.add('unlocked');
+            if (days >= 3) document.getElementById('badge3').classList.add('unlocked');
+            if (days >= 7) document.getElementById('badge7').classList.add('unlocked');
+            if (days >= 30) document.getElementById('badge30').classList.add('unlocked');
+        }
+
+        setInterval(updateTimer, 1000);
+        updateTimer();
+
+        function changeQuote() {
+            const randomQuote = quotes[Math.floor(Math.random() * quotes.length)];
+            document.getElementById('dailyQuote').innerText = `"${randomQuote}"`;
+        }
+
+        function selectMood(btn, message) {
+            document.querySelectorAll('.mood-btn').forEach(b => b.classList.remove('selected'));
+            btn.classList.add('selected');
+            document.getElementById('moodResponse').innerText = message;
+        }
+
+        function openSOS() {
+            document.getElementById('actionTip').innerHTML = tips[Math.floor(Math.random() * tips.length)];
+            document.getElementById('sosModal').style.display = 'flex';
+        }
+
+        function closeSOS() {
+            document.getElementById('sosModal').style.display = 'none';
+            celebrate();
+        }
+
+        // وظائف لعبة الفقاعات
+        function createBubbles() {
+            const container = document.getElementById('bubblesContainer');
+            container.innerHTML = '';
+            for (let i = 0; i < 20; i++) {
+                const bubble = document.createElement('div');
+                bubble.className = 'bubble';
+                bubble.onclick = function() {
+                    if (!this.classList.contains('popped')) {
+                        this.classList.add('popped');
+                        if (navigator.vibrate) navigator.vibrate(30); // اهتزاز لطيف عند الفرقعة
+                    }
+                };
+                container.appendChild(bubble);
+            }
+        }
+
+        function openBubbles() {
+            createBubbles();
+            document.getElementById('bubblesModal').style.display = 'flex';
+        }
+
+        function closeBubbles() {
+            document.getElementById('bubblesModal').style.display = 'none';
+        }
+
+        function celebrate() {
+            confetti({
+                particleCount: 80,
+                spread: 70,
+                origin: { y: 0.6 },
+                colors: ['#0d9488', '#f59e0b', '#38bdf8', '#fb7185']
+            });
+        }
+
+        function resetCounter() {
+            if (confirm("التعثر جزء طبيعي من رحلة التعافي ولا يلغي مجهودكِ السابق أبداً 🤍\nهل تريدين تصفير العداد وبدء صفحة جديدة الآن؟")) {
+                startTime = Date.now();
+                localStorage.setItem('recoveryStartTime', startTime);
+                document.querySelectorAll('.badge').forEach(b => b.classList.remove('unlocked'));
+                updateTimer();
+            }
+        }
+
+        if ('serviceWorker' in navigator) {
+            navigator.serviceWorker.register('sw.js');
+        }
+    </script>
+</body>
+</html>
